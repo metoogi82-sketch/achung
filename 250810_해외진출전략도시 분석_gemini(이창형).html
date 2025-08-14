@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-스타트업 글로벌 진출 전략 인포그래픽 (Gemini API 적용)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+        .small-chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 40vh;
+        }
+        .flowchart-box {
+            border: 2px solid;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .flowchart-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0.5rem 0;
+        }
+        #ai-modal {
+            transition: opacity 0.3s ease;
+        }
+        .prose h3 {
+            color: #003F5C;
+            font-weight: bold;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .prose strong {
+            color: #58508D;
+        }
+        .prose ul {
+            list-style-position: inside;
+            padding-left: 0;
+        }
+        .prose li {
+            margin-bottom: 0.25rem;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #58508D;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @media (min-width: 768px) {
+            .flowchart-arrow {
+                margin: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#003F5C] mb-2">대한민국 스타트업, 세계를 향한 위대한 항해</h1>
+            <p class="text-lg text-[#58508D]">글로벌 혁신 허브 분석 및 K-스타트업 진출 전략 제언</p>
+        </header>
+        
+        <hr class="my-16 border-t-2 border-[#FFA600]">
+
+        <section id="ai-recommender" class="mb-16 bg-white p-8 rounded-lg shadow-lg">
+            <h2 class="text-3xl font-bold text-center text-[#003F5C] mb-2">✨ AI 기반 맞춤 도시 추천</h2>
+            <p class="max-w-3xl mx-auto text-center text-gray-600 mb-8">
+                당신의 스타트업 정보를 입력하면 Gemini AI가 최적의 해외 진출 도시를 추천해 드립니다.
+            </p>
+            <div class="max-w-2xl mx-auto">
+                <div class="grid md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label for="industry" class="block text-sm font-medium text-gray-700">산업 분야</label>
+                        <select id="industry" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#BC5090] focus:border-[#BC5090]">
+                            <option>AI/SaaS</option>
+                            <option>핀테크</option>
+                            <option>바이오/헬스케어</option>
+                            <option>하드웨어/제조</option>
+                            <option>블록체인</option>
+                            <option>콘텐츠/미디어</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="stage" class="block text-sm font-medium text-gray-700">성장 단계</label>
+                        <select id="stage" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#BC5090] focus:border-[#BC5090]">
+                            <option>초기(Seed)</option>
+                            <option>시리즈 A</option>
+                            <option>시리즈 B 이상</option>
+                            <option>스케일업</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="priority" class="block text-sm font-medium text-gray-700">핵심 목표</label>
+                        <select id="priority" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#BC5090] focus:border-[#BC5090]">
+                            <option>투자 유치</option>
+                            <option>시장 개척</option>
+                            <option>R&D 및 기술 확보</option>
+                            <option>인재 영입</option>
+                        </select>
+                    </div>
+                </div>
+                <button id="get-recommendation-btn" class="w-full bg-gradient-to-r from-[#FF6361] to-[#FFA600] text-white font-bold py-3 px-4 rounded-md hover:opacity-90 transition-opacity">
+                    최적의 진출 도시 찾기
+                </button>
+            </div>
+        </section>
+
+        <section id="overview" class="mb-16">
+            <h2 class="text-3xl font-bold text-center text-[#003F5C] mb-8">한눈에 보는 글로벌 창업 생태계</h2>
+            <p class="max-w-3xl mx-auto text-center text-gray-600 mb-10">
+                전 세계 55개 주요 도시의 창업 생태계, 시장 성장성, 기술 수준 등을 종합적으로 분석했습니다. 대륙별 종합 점수는 각 지역의 평균적인 기회 수준을 보여주며, 북미와 유럽이 여전히 강력한 리더십을 유지하는 가운데, 아시아가 역동적인 성장 잠재력을 바탕으로 빠르게 부상하고 있음을 확인할 수 있습니다.
+            </p>
+            <div class="chart-container">
+                <canvas id="continentScoresChart"></canvas>
+            </div>
+        </section>
+
+        <hr class="my-16 border-t-2 border-[#FFA600]">
+
+        <section id="top-cities" class="mb-16">
+            <h2 class="text-3xl font-bold text-center text-[#003F5C] mb-8">TOP 20 전략 거점 도시</h2>
+             <p class="max-w-3xl mx-auto text-center text-gray-600 mb-10">
+                종합 전략 점수 상위 20개 도시는 우리 스타트업이 글로벌 진출 시 우선적으로 고려해야 할 핵심 거점입니다. 샌프란시스코, 뉴욕, 런던이 최상위권을 형성하며 '관문형 허브'로서의 중요성을 입증했으며, 베이징, 텔아비브, 상하이 등 아시아 도시들이 그 뒤를 잇고 있습니다. 이 차트는 각 도시의 종합적인 매력도를 직관적으로 비교할 수 있게 해줍니다.
+            </p>
+            <div class="chart-container h-[600px] max-h-[70vh]">
+                <canvas id="topCitiesChart"></canvas>
+            </div>
+        </section>
+
+        <hr class="my-16 border-t-2 border-[#FFA600]">
+
+        <section id="city-tiers" class="mb-16">
+            <h2 class="text-3xl font-bold text-center text-[#003F5C] mb-8">단계별 KSC 구축을 위한 전략적 도시 분류</h2>
+            <p class="max-w-4xl mx-auto text-center text-gray-600 mb-12">
+                모든 도시에 동일한 전략을 적용할 수는 없습니다. 도시의 특성과 우리 스타트업에 제공하는 핵심 가치에 따라 세 가지 유형으로 분류하여, 단계별 진출 및 지원 전략을 수립해야 합니다. 이는 한정된 자원을 효율적으로 배분하고 정책 효과를 극대화하기 위한 핵심 로드맵입니다.
+            </p>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-lg border-t-4 border-[#003F5C]">
+                    <h3 class="text-2xl font-bold text-[#003F5C] mb-4">Tier 1: 관문형 허브</h3>
+                    <p class="font-bold text-gray-700 mb-2">Gateway Hubs</p>
+                    <p class="text-gray-600 mb-4">글로벌 Top 10 수준의 압도적인 생태계를 보유한 세계 경제 및 혁신의 중심지입니다. 대규모 투자 유치와 글로벌 스케일업을 위한 필수 관문입니다.</p>
+                    <ul class="list-disc list-inside text-[#003F5C] font-semibold">
+                        <li>샌프란시스코</li>
+                        <li>뉴욕</li>
+                        <li>런던</li>
+                        <li>베이징</li>
+                        <li>파리</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg border-t-4 border-[#BC5090]">
+                    <h3 class="text-2xl font-bold text-[#BC5090] mb-4">Tier 2: 고성장 기회 허브</h3>
+                    <p class="font-bold text-gray-700 mb-2">High-Growth Opportunity Hubs</p>
+                    <p class="text-gray-600 mb-4">폭발적인 시장 성장률과 정부의 강력한 지원을 바탕으로 새로운 기회가 열리는 신흥 강자입니다. 시장 선점을 통한 퀀텀 점프가 가능합니다.</p>
+                     <ul class="list-disc list-inside text-[#BC5090] font-semibold">
+                        <li>리야드</li>
+                        <li>호치민</li>
+                        <li>두바이</li>
+                        <li>자카르타</li>
+                        <li>벵갈루루</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg border-t-4 border-[#FF6361]">
+                    <h3 class="text-2xl font-bold text-[#FF6361] mb-4">Tier 3: 전문·특화 허브</h3>
+                    <p class="font-bold text-gray-700 mb-2">Specialized & Niche Hubs</p>
+                    <p class="text-gray-600 mb-4">특정 기술이나 산업 분야에서 세계 최고 수준의 경쟁력을 보유한 도시입니다. 핵심 기술 확보와 R&D 협력에 최적화되어 있습니다.</p>
+                     <ul class="list-disc list-inside text-[#FF6361] font-semibold">
+                        <li>텔아비브 (사이버보안)</li>
+                        <li>타이베이 (반도체)</li>
+                        <li>선전 (하드웨어)</li>
+                        <li>보스턴 (바이오)</li>
+                        <li>취리히 (핀테크)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <hr class="my-16 border-t-2 border-[#FFA600]">
+
+        <section id="key-cities-analysis" class="mb-16">
+            <h2 class="text-3xl font-bold text-center text-[#003F5C] mb-8">주요 기회 도시 심층 분석 (55개 도시)</h2>
+            <p class="max-w-4xl mx-auto text-center text-gray-600 mb-12">
+                전 세계 55개 주요 도시의 강점과 약점을 레이더 차트로 분석했습니다. 각 도시의 프로필을 입체적으로 이해하고, 우리 스타트업의 특성과 부합하는 최적의 진출지를 선택하는 데 도움을 줄 것입니다.
+            </p>
+            <div id="city-analysis-grid" class="grid md:grid-cols-2 gap-12">
+                <!-- 55개 도시 데이터가 여기에 동적으로 삽입됩니다. -->
+            </div>
+        </section>
+
+        <hr class="my-16 border-t-2 border-[#FFA600]">
+
+        <section id="policy-proposal" class="mb-16">
+            <h2 class="text-3xl font-bold text-center text-[#003F5C] mb-8">정책 제언: 현지 맞춤형 KSC 지원 체계 구축</h2>
+            <p class="max-w-4xl mx-auto text-center text-gray-600 mb-12">
+                성공적인 글로벌 진출을 위해서는 획일적인 지원에서 벗어나, 현지 거점 도시의 특성에 맞는 차별화된 '코리아 스타트업 센터(KSC)' 네트워크를 구축해야 합니다. 도시 유형별 핵심 임무와 프로그램을 중심으로 한 '허브 앤 스포크' 모델을 제안합니다.
+            </p>
+            <div class="flex flex-col md:flex-row justify-center items-center md:items-start space-y-4 md:space-y-0 md:space-x-4">
+                <div class="flowchart-box border-[#003F5C] text-[#003F5C]">
+                    <h4 class="font-bold text-lg">Tier 1: 관문형 허브 KSC</h4>
+                    <p class="text-sm">(뉴욕, 런던 등)</p>
+                    <p class="mt-2 font-semibold">🎯 핵심 임무: 자본 조달 및 스케일업</p>
+                    <p class="text-xs mt-1">글로벌 IR, CVC 네트워킹, 핵심인재 영입 지원</p>
+                </div>
+                <div class="flowchart-arrow text-gray-400">▼</div>
+                <div class="flowchart-box border-[#BC5090] text-[#BC5090]">
+                    <h4 class="font-bold text-lg">Tier 2: 고성장 허브 KSC</h4>
+                    <p class="text-sm">(호치민, 리야드 등)</p>
+                    <p class="mt-2 font-semibold">🎯 핵심 임무: 시장 진입 및 매출 창출</p>
+                    <p class="text-xs mt-1">소프트랜딩, 현지 파트너 발굴, 정부 프로젝트 연계</p>
+                </div>
+                 <div class="flowchart-arrow text-gray-400">▼</div>
+                <div class="flowchart-box border-[#FF6361] text-[#FF6361]">
+                    <h4 class="font-bold text-lg">Tier 3: 전문·특화 허브 KSC</h4>
+                    <p class="text-sm">(텔아비브, 타이베이 등)</p>
+                    <p class="mt-2 font-semibold">🎯 핵심 임무: 기술 확보 및 공급망 편입</p>
+                    <p class="text-xs mt-1">공동 R&D 중개, 기술 전문가 멘토링, 공급망 연계</p>
+                </div>
+            </div>
+             <div class="text-center mt-10">
+                <div class="inline-block bg-white p-6 rounded-lg shadow-lg border-t-4 border-[#FFA600]">
+                    <h3 class="text-2xl font-bold text-[#FFA600] mb-2">🚀 글로벌 K-스타트업 패스포트</h3>
+                    <p class="text-gray-600">하나의 KSC 프로그램을 수료한 스타트업이 전 세계 KSC 네트워크를 자유롭게 활용하여<br> 성장 단계에 맞는 연속적인 지원을 받을 수 있는 통합 지원 시스템</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="text-center pt-8 mt-12 border-t border-gray-300">
+            <p class="text-sm text-gray-500">본 인포그래픽은 제공된 자료를 기반으로 제작되었습니다. 모든 데이터와 분석은 원본 보고서의 내용을 따릅니다.</p>
+        </footer>
+
+    </div>
+
+    <!-- AI Modal -->
+    <div id="ai-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden opacity-0">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h3 id="modal-title" class="text-xl font-bold text-[#003F5C]">AI 분석 결과</h3>
+                <button id="close-modal-btn" class="text-gray-500 hover:text-gray-800">&times;</button>
+            </div>
+            <div id="modal-content" class="p-6 overflow-y-auto">
+                <!-- AI generated content will be injected here -->
+            </div>
+            <div id="modal-loader" class="p-6 flex-grow flex items-center justify-center hidden">
+                <div class="text-center">
+                    <div class="loader mx-auto"></div>
+                    <p class="mt-4 text-gray-600">AI가 분석 중입니다. 잠시만 기다려 주세요...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const vibrantPalette = {
+            blue: '#003F5C',
+            purple: '#58508D',
+            pink: '#BC5090',
+            red: '#FF6361',
+            orange: '#FFA600',
+            lightGray: '#F0F0F0',
+            darkGray: '#333333'
+        };
+
+        const tooltipCallback = {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const item = tooltipItems[0];
+                            let label = item.chart.data.labels[item.dataIndex];
+                            if (Array.isArray(label)) {
+                              return label.join(' ');
+                            } else {
+                              return label;
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        
+        function wrapLabels(label, maxLength) {
+            if (label.length <= maxLength) {
+                return label;
+            }
+            const words = label.split(' ');
+            let currentLine = '';
+            const lines = [];
+            words.forEach(word => {
+                if ((currentLine + word).length > maxLength) {
+                    lines.push(currentLine.trim());
+                    currentLine = '';
+                }
+                currentLine += word + ' ';
+            });
+            lines.push(currentLine.trim());
+            return lines;
+        }
+
+        const continentScoresCtx = document.getElementById('continentScoresChart').getContext('2d');
+        new Chart(continentScoresCtx, {
+            type: 'bar',
+            data: {
+                labels: ['북미', '유럽', '아시아 & 오세아니아'],
+                datasets: [{
+                    label: '대륙별 종합 점수 (10점 만점)',
+                    data: [8.46, 7.42, 7.15],
+                    backgroundColor: [vibrantPalette.blue, vibrantPalette.purple, vibrantPalette.pink],
+                    borderColor: [vibrantPalette.blue, vibrantPalette.purple, vibrantPalette.pink],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 10,
+                        grid: { color: vibrantPalette.lightGray }
+                    },
+                    y: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: '대륙별 창업 생태계 종합 점수',
+                        font: { size: 18, weight: 'bold' },
+                        color: vibrantPalette.darkGray,
+                        padding: { bottom: 20 }
+                    },
+                    ...tooltipCallback.plugins
+                }
+            }
+        });
+
+        const topCitiesData = {
+            labels: ['샌프란시스코', '뉴욕', '런던', '베이징', '텔아비브', '로스앤젤레스', '상하이', '보스턴', '파리', '벵갈루루', '베를린', '뉴델리', '토론토', '선전', '시드니', '스톡홀름', '암스테르담', '항저우', '뭄바이', '두바이'],
+            scores: [9.10, 9.03, 8.99, 8.28, 8.28, 8.20, 8.18, 8.15, 8.13, 7.68, 7.67, 7.46, 7.45, 7.43, 7.38, 7.35, 7.18, 7.13, 7.11, 7.08]
+        };
+
+        const topCitiesCtx = document.getElementById('topCitiesChart').getContext('2d');
+        new Chart(topCitiesCtx, {
+            type: 'bar',
+            data: {
+                labels: topCitiesData.labels.map(label => wrapLabels(label, 16)),
+                datasets: [{
+                    label: '종합 전략 점수',
+                    data: topCitiesData.scores,
+                    backgroundColor: [
+                        vibrantPalette.blue, vibrantPalette.blue, vibrantPalette.purple, vibrantPalette.pink, vibrantPalette.pink,
+                        vibrantPalette.blue, vibrantPalette.pink, vibrantPalette.blue, vibrantPalette.purple, vibrantPalette.pink,
+                        vibrantPalette.purple, vibrantPalette.pink, vibrantPalette.blue, vibrantPalette.pink, vibrantPalette.orange,
+                        vibrantPalette.purple, vibrantPalette.purple, vibrantPalette.pink, vibrantPalette.pink, vibrantPalette.pink
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 10,
+                        grid: { color: vibrantPalette.lightGray }
+                    },
+                    x: {
+                         grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: '글로벌 Top 20 전략 도시 종합 점수',
+                        font: { size: 18, weight: 'bold' },
+                        color: vibrantPalette.darkGray,
+                        padding: { bottom: 20 }
+                    },
+                    ...tooltipCallback.plugins
+                }
+            }
+        });
+        
+        const radarOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { display: true, color: vibrantPalette.lightGray },
+                    suggestedMin: 0,
+                    suggestedMax: 10,
+                    grid: { color: vibrantPalette.lightGray },
+                    pointLabels: { font: { size: 12 } },
+                    ticks: {
+                        backdropColor: 'rgba(255, 255, 255, 0.75)',
+                        stepSize: 2
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                 ...tooltipCallback.plugins
+            }
+        };
+
+        const radarLabels = ['생태계', '성장성', 'K-시너지', '산업환경', '기술수준', '제도개방성'];
+
+        const allCitiesData = [
+            { name: '샌프란시스코', data: [10.0, 5.8, 9.0, 10.0, 10.0, 8.0], color: vibrantPalette.blue, description: '이론의 여지가 없는 세계 1위의 창업 생태계. 딥테크, AI, 바이오 분야 글로벌 성공을 위한 필수 관문입니다.' },
+            { name: '뉴욕', data: [9.9, 6.8, 9.5, 9.5, 9.0, 8.0], color: vibrantPalette.blue, description: '세계 금융의 중심지. 핀테크, 미디어, 엔터프라이즈 S/W 분야 북미 시장 진출을 위한 최적의 관문입니다.' },
+            { name: '런던', data: [9.8, 7.4, 9.0, 9.8, 9.0, 7.5], color: vibrantPalette.purple, description: '유럽 1위, 글로벌 3위의 스타트업 수도. 강력한 금융 파워를 바탕으로 유럽 진출 및 스케일업을 위한 최적의 거점입니다.' },
+            { name: '베이징', data: [9.6, 6.7, 8.0, 9.0, 9.5, 3.0], color: vibrantPalette.pink, description: '중국의 정치, 문화, 기술 중심지이자 글로벌 Top 5 생태계. KSC의 체계적 지원이 필수적인 시장입니다.' },
+            { name: '텔아비브', data: [9.4, 6.5, 7.0, 9.5, 10.0, 6.0], color: vibrantPalette.red, description: "'스타트업 네이션' 이스라엘의 심장부. 사이버보안과 AI 분야에서 세계 최강의 기술력을 자랑합니다." },
+            { name: '로스앤젤레스', data: [9.7, 4.4, 8.5, 9.0, 8.0, 8.0], color: vibrantPalette.blue, description: '실리콘밸리의 대안으로 급부상하는 서부의 핵심 허브. 미디어, 엔터테인먼트, 콘텐츠 산업이 독보적입니다.' },
+            { name: '상하이', data: [9.5, 8.5, 8.5, 9.8, 9.0, 3.0], color: vibrantPalette.pink, description: '중국의 경제 수도이자 글로벌 금융 허브. 하드웨어, IoT, 핀테크 분야에서 세계적인 경쟁력을 갖추고 있습니다.' },
+            { name: '보스턴', data: [9.5, 5.1, 7.0, 9.0, 9.8, 8.0], color: vibrantPalette.blue, description: 'MIT, 하버드를 중심으로 한 세계 최고의 학술 인프라. 바이오, 헬스케어, 딥테크 분야에 독보적 강점을 가집니다.' },
+            { name: '파리', data: [9.4, 8.0, 7.0, 8.5, 9.0, 7.0], color: vibrantPalette.purple, description: "정부의 강력한 지원(La French Tech)에 힘입어 유럽의 핵심 AI 및 딥테크 허브로 급부상하고 있습니다." },
+            { name: '벵갈루루', data: [9.2, 4.3, 6.0, 9.0, 8.5, 5.0], color: vibrantPalette.pink, description: "'인도의 실리콘밸리'로 불리는 인도 기술 혁신의 심장. 풍부한 IT 인력과 강력한 S/W 생태계를 자랑합니다." },
+            { name: '베를린', data: [9.0, 5.9, 7.0, 8.0, 8.0, 7.5], color: vibrantPalette.purple, description: '유럽의 창업 수도. 저렴한 비용과 창의적인 분위기로 유럽 시장 진출을 위한 비용 효율적인 관문 역할을 합니다.' },
+            { name: '뉴델리', data: [9.1, 4.8, 6.0, 9.2, 7.0, 5.0], color: vibrantPalette.pink, description: '14억 인구의 거대 내수 시장을 배경으로 하는 인도의 핵심 거점. 이커머스 및 리테일 분야에 강점을 보입니다.' },
+            { name: '토론토', data: [8.6, 7.5, 7.0, 7.5, 7.0, 8.0], color: vibrantPalette.blue, description: '캐나다 최대의 경제 중심지. 다문화 환경과 안정적인 생태계를 바탕으로 북미 시장 진출의 교두보 역할을 합니다.' },
+            { name: '선전', data: [8.8, 6.3, 7.5, 9.5, 9.0, 3.0], color: vibrantPalette.red, description: "'세계의 공장'이자 하드웨어 제조의 중심지. 아이디어를 가장 빠르게 시제품으로 만들고 양산할 수 있습니다." },
+            { name: '시드니', data: [8.0, 8.9, 6.0, 7.0, 7.0, 8.0], color: vibrantPalette.orange, description: '오세아니아 지역의 최대 창업 허브. 높은 성장률과 암호화폐 특화 강점을 바탕으로 빠르게 부상하고 있습니다.' },
+            { name: '스톡홀름', data: [8.4, 7.8, 6.0, 8.0, 7.5, 7.0], color: vibrantPalette.purple, description: "유럽의 '유니콘 팩토리'. Spotify, Klarna 등 글로벌 성공 사례를 통해 검증된 생태계입니다." },
+            { name: '암스테르담', data: [8.2, 7.7, 6.0, 7.5, 7.0, 7.5], color: vibrantPalette.purple, description: '높은 영어 구사 능력과 개방적인 문화를 바탕으로 유럽 진출의 전략적 교두보로 평가받습니다.' },
+            { name: '항저우', data: [8.1, 8.6, 6.0, 8.5, 7.0, 3.0], color: vibrantPalette.pink, description: '알리바바의 본거지로서 전자상거래와 핀테크가 고도로 발달했으며, 최근 가장 눈에 띄는 반등을 보여주고 있습니다.' },
+            { name: '뭄바이', data: [8.7, 7.7, 5.0, 8.8, 6.0, 5.0], color: vibrantPalette.pink, description: '인도의 경제 수도. 강력한 금융 인프라와 거대한 소비 시장을 갖추고 있으며, 에듀테크 분야에서 두각을 나타냅니다.' },
+            { name: '두바이', data: [7.2, 7.9, 7.0, 8.0, 8.0, 9.5], color: vibrantPalette.pink, description: '중동 및 북아프리카(MENA) 시장 진출을 위한 대체 불가능한 전략적 허브. 정부의 강력한 친기업 정책이 강점입니다.' },
+            { name: '타이베이', data: [7.0, 4.0, 8.0, 9.8, 9.5, 5.0], color: vibrantPalette.red, description: '세계 최고 수준의 하드웨어 및 반도체 산업 인프라. 한국의 S/W와 대만의 H/W를 결합하는 기술 협력에 최적입니다.' },
+            { name: '자카르타', data: [8.0, 4.9, 7.5, 8.5, 6.0, 4.0], color: vibrantPalette.pink, description: '2억 8천만 인구의 동남아 최대 내수 시장. 자국 시장만으로도 유니콘 스케일업이 가능한 독보적인 환경입니다.' },
+            { name: '호치민', data: [6.0, 8.5, 9.0, 7.0, 6.0, 7.0], color: vibrantPalette.pink, description: '폭발적인 성장 잠재력과 높은 한국 스타트업 진출 수요를 바탕으로 동남아 시장 진출의 핵심 교두보입니다.' },
+            { name: '리야드', data: [6.5, 10.0, 6.5, 7.5, 8.0, 9.8], color: vibrantPalette.pink, description: "국가적 아젠다 'Vision 2030' 아래 가장 극적인 변화와 성장을 보여주는 기회의 땅입니다." },
+            { name: '시애틀', data: [8.5, 5.5, 7.0, 8.0, 8.5, 8.0], color: vibrantPalette.blue, description: '아마존과 마이크로소프트의 본거지. 클라우드 컴퓨팅, AI, 이커머스 분야에서 강력한 생태계를 자랑합니다.' },
+            { name: '시카고', data: [8.3, 5.0, 6.0, 7.5, 7.0, 7.0], color: vibrantPalette.blue, description: '미국 중서부의 경제 및 물류 중심지. B2B, 물류, 핀테크 분야에서 안정적인 생태계를 갖추고 있습니다.' },
+            { name: '오스틴', data: [7.8, 8.2, 6.5, 7.0, 7.5, 8.5], color: vibrantPalette.blue, description: "'실리콘 힐스'로 불리며 급부상하는 기술 허브. 낮은 규제와 친기업 환경으로 많은 기업들이 이전하고 있습니다." },
+            { name: '밴쿠버', data: [7.5, 7.0, 7.5, 7.0, 7.0, 8.0], color: vibrantPalette.blue, description: '아시아와 북미를 잇는 관문. 높은 삶의 질과 함께 게임, 영상 기술, 클린테크 분야에서 강점을 보입니다.' },
+            { name: '마이애미', data: [7.0, 8.8, 6.0, 6.5, 6.5, 9.0], color: vibrantPalette.blue, description: '라틴 아메리카 시장 진출의 교두보. 핀테크와 블록체인 분야에서 새로운 허브로 빠르게 성장하고 있습니다.' },
+            { name: '덴버', data: [7.2, 7.2, 6.0, 7.0, 7.0, 8.0], color: vibrantPalette.blue, description: '미국 로키산맥 지역의 중심 도시. 항공우주, 클린테크, 헬스케어 분야에서 성장 잠재력이 높습니다.' },
+            { name: '몬트리올', data: [7.0, 6.5, 6.5, 7.5, 8.0, 7.5], color: vibrantPalette.blue, description: '캐나다의 AI 연구 중심지. 딥러닝 분야의 세계적인 석학들과 연구소들이 포진해 있습니다.' },
+            { name: '뮌헨', data: [8.0, 6.0, 6.5, 8.5, 8.0, 7.0], color: vibrantPalette.purple, description: '독일 남부의 경제 및 기술 중심지. 자동차, 첨단 제조, 보험(인슈어테크) 분야에서 강점을 보입니다.' },
+            { name: '취리히', data: [7.8, 6.2, 6.0, 9.0, 8.5, 8.5], color: vibrantPalette.purple, description: "스위스의 금융 허브이자 '크립토 밸리'의 중심. 핀테크와 블록체인 분야에서 세계적인 명성을 자랑합니다." },
+            { name: '더블린', data: [7.5, 7.0, 7.0, 7.0, 7.0, 9.0], color: vibrantPalette.purple, description: '유럽의 실리콘밸리. 낮은 법인세율을 바탕으로 다수의 글로벌 IT 기업 유럽 본사를 유치했습니다.' },
+            { name: '바르셀로나', data: [7.4, 7.5, 6.5, 7.0, 6.5, 7.0], color: vibrantPalette.purple, description: '남유럽의 대표적인 스타트업 허브. 스마트시티, 모바일, 관광 기술 분야에서 활발한 생태계를 갖추고 있습니다.' },
+            { name: '코펜하겐', data: [7.3, 6.8, 6.0, 7.5, 7.5, 8.0], color: vibrantPalette.purple, description: '북유럽 디자인과 지속가능성의 중심지. 디자인테크, 클린테크, 생명과학 분야에서 강점을 보입니다.' },
+            { name: '헬싱키', data: [7.1, 6.5, 6.5, 7.0, 7.5, 7.5], color: vibrantPalette.purple, description: '게임 산업의 강국. 슈퍼셀, 로비오 등 세계적인 게임사를 배출한 강력한 게임 생태계를 보유하고 있습니다.' },
+            { name: '탈린', data: [7.0, 6.2, 6.0, 6.5, 7.0, 9.5], color: vibrantPalette.purple, description: '전자정부의 선두주자. 스카이프를 탄생시킨 디지털 강소국으로, 블록체인과 사이버보안 기술이 뛰어납니다.' },
+            { name: '마드리드', data: [6.8, 7.2, 6.0, 6.5, 6.0, 7.0], color: vibrantPalette.purple, description: '스페인의 수도이자 경제 중심지. 핀테크, 모빌리티, 이커머스 분야에서 빠르게 성장하고 있습니다.' },
+            { name: '밀라노', data: [6.6, 6.8, 6.0, 7.5, 6.0, 6.5], color: vibrantPalette.purple, description: '이탈리아의 경제 및 패션 중심지. 패션테크, 디자인, 핀테크 분야에서 강점을 가지고 있습니다.' },
+            { name: '브뤼셀', data: [6.3, 6.0, 6.5, 6.0, 6.0, 7.0], color: vibrantPalette.purple, description: '유럽연합의 수도. 정책과 규제에 민감한 레그테크(RegTech)나 공공 부문 혁신에 기회가 있습니다.' },
+            { name: '리스본', data: [6.2, 7.8, 6.0, 6.0, 6.0, 7.5], color: vibrantPalette.purple, description: '유럽 최대 테크 컨퍼런스 ‘웹 서밋’ 개최지. 저렴한 비용과 좋은 날씨로 디지털 노마드의 성지로 떠오르고 있습니다.' },
+            { name: '비엔나', data: [6.0, 6.5, 6.0, 6.5, 6.0, 7.0], color: vibrantPalette.purple, description: '동유럽과 서유럽을 잇는 관문. 높은 삶의 질을 바탕으로 딥테크 및 생명과학 분야에서 꾸준히 성장하고 있습니다.' },
+            { name: '바르샤바', data: [5.7, 7.5, 5.5, 6.0, 6.0, 6.5], color: vibrantPalette.purple, description: '동유럽 최대 시장 폴란드의 수도. 우수한 IT 인력과 낮은 비용을 바탕으로 빠르게 성장하는 게임 및 SaaS 허브입니다.' },
+            { name: '오슬로', data: [5.6, 6.2, 5.5, 6.5, 6.5, 6.0], color: vibrantPalette.purple, description: '노르웨이의 해양 및 에너지 기술 중심지. 해양테크, 클린테크, 에너지 분야에서 특화된 강점을 보입니다.' },
+            { name: '모스크바', data: [5.3, 4.0, 5.0, 7.0, 7.5, 2.0], color: vibrantPalette.purple, description: '러시아의 압도적인 기술 및 경제 중심지. 지정학적 리스크가 매우 크나, 딥테크 분야의 기술 인재풀은 여전히 강력합니다.' },
+            { name: '홍콩', data: [7.8, 7.0, 7.0, 8.0, 7.0, 6.0], color: vibrantPalette.pink, description: '아시아의 전통적인 금융 허브. 핀테크 및 국제 투자 유치에 강점을 가지며, 중국 시장 진출의 교두보 역할을 합니다.' },
+            { name: '멜버른', data: [7.0, 6.8, 6.0, 7.0, 6.5, 8.0], color: vibrantPalette.orange, description: '호주의 문화 수도. 높은 삶의 질을 바탕으로 스포츠테크, 에듀테크, 헬스케어 분야에서 강점을 보입니다.' },
+            { name: '쿠알라룸푸르', data: [6.5, 7.0, 6.5, 7.5, 6.0, 7.0], color: vibrantPalette.pink, description: '이슬람 금융의 허브. 할랄 시장을 타겟으로 하는 핀테크 스타트업에게 독특한 기회를 제공합니다.' },
+            { name: '방콕', data: [6.2, 7.3, 6.5, 6.5, 6.0, 7.0], color: vibrantPalette.pink, description: '동남아의 관광 및 문화 중심지. 라이프스타일, 핀테크, 블록체인 분야에서 강점을 보입니다.' },
+            { name: '오사카', data: [5.8, 6.5, 7.0, 7.5, 6.5, 5.0], color: vibrantPalette.pink, description: '일본 제2의 경제권. 바이오, 헬스케어, 제조(모노즈쿠리) 분야에 특화된 산업형 창업 생태계입니다.' },
+            { name: '충칭', data: [5.5, 8.0, 6.0, 7.0, 6.0, 4.0], color: vibrantPalette.pink, description: '중국 서부 대개발의 핵심 거점. 제조업 및 자동차 산업을 기반으로 빠르게 성장하는 내륙 도시입니다.' },
+            { name: '마닐라', data: [5.2, 4.5, 6.0, 6.0, 5.5, 5.0], color: vibrantPalette.pink, description: '풍부하고 유창한 영어 구사 인력을 바탕으로 한 아웃소싱 및 원격 근무 허브로서의 잠재력이 높습니다.' },
+            { name: '알마티', data: [4.9, 8.2, 5.0, 5.0, 5.0, 6.0], color: vibrantPalette.pink, description: '중앙아시아의 새로운 혁신 허브로 빠르게 부상하고 있는 도시. 정부의 강력한 지원이 강점입니다.' },
+            { name: '조호르 바루', data: [3.6, 5.7, 4.0, 3.0, 2.0, 5.0], color: vibrantPalette.pink, description: '싱가포르의 배후기지이자 저비용 생산/운영 거점으로서의 잠재력을 가진 도시입니다.' },
+        ];
+        
+        const cityGrid = document.getElementById('city-analysis-grid');
+
+        allCitiesData.forEach(city => {
+            const cityId = city.name.replace(/ /g, '').replace(/,/g, '');
+            const card = document.createElement('div');
+            card.className = 'bg-white p-6 rounded-lg shadow-lg';
+            
+            card.innerHTML = `
+                <h3 class="text-2xl font-bold text-center text-[${city.color}] mb-4">${city.name}</h3>
+                <div class="small-chart-container">
+                    <canvas id="${cityId}Chart"></canvas>
+                </div>
+                <p class="text-sm text-gray-600 mt-4">${city.description}</p>
+                <button class="swot-btn mt-4 w-full bg-[${city.color}] text-white font-bold py-2 px-4 rounded-md hover:opacity-90 transition-opacity" data-city="${city.name}">✨ AI SWOT 분석</button>
+            `;
+            cityGrid.appendChild(card);
+        });
+
+        allCitiesData.forEach(city => {
+            const cityId = city.name.replace(/ /g, '').replace(/,/g, '');
+            const ctx = document.getElementById(`${cityId}Chart`).getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: radarLabels,
+                    datasets: [{
+                        label: city.name,
+                        data: city.data,
+                        backgroundColor: 'transparent',
+                        borderColor: city.color,
+                        borderWidth: 3,
+                        pointBackgroundColor: city.color,
+                    }]
+                },
+                options: radarOptions
+            });
+        });
+
+
+        // Gemini API Integration
+        const modal = document.getElementById('ai-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContent = document.getElementById('modal-content');
+        const modalLoader = document.getElementById('modal-loader');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+
+        function showModal() {
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+
+        function hideModal() {
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        closeModalBtn.addEventListener('click', hideModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                hideModal();
+            }
+        });
+        
+        const apiKey = "AIzaSyD2iIGBb5dPuvm_nRsSB5yGletFTEOB3YI";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+        async function callGemini(prompt, retries = 3, delay = 1000) {
+            modalContent.innerHTML = '';
+            modalLoader.classList.remove('hidden');
+            
+            try {
+                const payload = {
+                    contents: [{
+                        parts: [{ text: prompt }]
+                    }]
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                modalLoader.classList.add('hidden');
+                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    modalContent.innerHTML = marked.parse(text);
+                    modalContent.classList.add('prose', 'max-w-none');
+                } else {
+                    modalContent.innerHTML = '<p>AI로부터 유효한 응답을 받지 못했습니다. 잠시 후 다시 시도해 주세요.</p>';
+                }
+
+            } catch (error) {
+                 if (retries > 0) {
+                    await new Promise(res => setTimeout(res, delay));
+                    return callGemini(prompt, retries - 1, delay * 2);
+                } else {
+                    console.error("Error calling Gemini API:", error);
+                    modalLoader.classList.add('hidden');
+                    modalContent.innerHTML = `<p class="text-red-500">AI 분석 중 오류가 발생했습니다. 네트워크 연결을 확인하거나 잠시 후 다시 시도해 주세요.</p>`;
+                }
+            }
+        }
+
+        document.getElementById('get-recommendation-btn').addEventListener('click', () => {
+            const industry = document.getElementById('industry').value;
+            const stage = document.getElementById('stage').value;
+            const priority = document.getElementById('priority').value;
+
+            modalTitle.textContent = `✨ ${industry} 스타트업 맞춤 도시 추천`;
+            showModal();
+
+            const prompt = `당신은 기술 스타트업의 글로벌 진출을 전문으로 하는 컨설턴트입니다. 다음 프로필을 가진 한국 스타트업에게 가장 적합한 해외 진출 도시 3곳을 추천해 주세요.
+
+- **산업 분야:** ${industry}
+- **성장 단계:** ${stage}
+- **핵심 목표:** ${priority}
+
+각 추천 도시에 대해, 해당 도시의 창업 생태계, 시장 성장성, 산업 특성, 인재 확보 용이성 등을 근거로 왜 강력한 후보지인지 2~3문장으로 설득력 있게 설명해 주세요.
+
+결과는 반드시 마크다운 형식으로, 각 도시 이름은 ### (h3) 헤딩을 사용하여 명확하게 제시해 주세요.`;
+
+            callGemini(prompt);
+        });
+
+        document.querySelectorAll('.swot-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const city = button.dataset.city;
+                const industry = document.getElementById('industry').value;
+
+                modalTitle.textContent = `✨ ${city} 진출 SWOT 분석 (${industry} 분야)`;
+                showModal();
+
+                const prompt = `당신은 전략 분석가입니다. '${industry}' 분야의 한국 스타트업이 **'${city}'** 시장에 진출하는 상황을 가정하고, 상세한 SWOT 분석을 수행해 주세요. 분석은 통찰력 있고 실행 가능해야 합니다.
+
+결과는 반드시 마크다운 형식으로, 아래 구조를 따라 작성해 주세요.
+
+**Strengths (강점):**
+- 
+
+**Weaknesses (약점):**
+- 
+
+**Opportunities (기회):**
+- 
+
+**Threats (위협):**
+- `;
+                callGemini(prompt);
+            });
+        });
+
+    </script>
+</body>
+</html>
